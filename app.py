@@ -5,6 +5,12 @@ from flask import Flask, render_template, request, g, session, redirect, url_for
 import mysql.connector
 from passlib.hash import argon2
 from passlib.context import CryptContext
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+import time
+import atexit
+import requests
+import datetime
 
 app = Flask(__name__)
 
@@ -20,7 +26,58 @@ pwd_context = CryptContext(
 )
 
 
+def get_status(url):
+	status_code = 999
+	try:
+		r = requests.get(url, timeout=3)
+		r.raise_for_status()
+		status_code = r.status_code
+	except requests.exceptions.HTTPError as errh:
+		status_code = r.status_code
+	except requests.exceptions.ConnectionError as errc:
+		pass
+	except requests.exceptions.Timeout as errt:
+		pass
+	except requests.exceptions.RequestException as err:
+		pass
+	return str(status_code)
 
+
+def insert_histo(status_code, date, id):
+	db = get_db()
+	query_data = {'status': status_code, 'date': date, 'website_id': id}
+	db.execute('INSERT INTO historique (status, date, website_id) VALUES (%(status)s, %(date)s, %(website_id)s)',
+			   query_data)
+
+
+def check_status():
+	with app.app_context():
+		db = get_db()
+		db.execute('SELECT id, link FROM website')
+		urls = db.fetchall()
+		f = '%Y-%m-%d %H:%M:%S'
+
+		for url in urls:
+			id = url[0]
+			link = url[1]
+			status_code = get_status(link)
+			now = datetime.datetime.now()
+			date = now.strftime(f)
+
+			insert_histo(status_code, date, id)
+
+		commit()
+
+
+scheduler = BackgroundScheduler()
+scheduler.start()
+scheduler.add_job(
+	func=check_status,
+	trigger=IntervalTrigger(seconds=120),
+	id='check_status',
+	name='Insert website status',
+	replace_existing=True)
+atexit.register(lambda: scheduler.shutdown())
 
 '''
 === ROUTES === 
@@ -39,7 +96,7 @@ def homepage():
 @app.route('/show/<int:id>/')
 def show(id):
 	db = get_db()
-	query = 'select link, status, date from website, historique where website.id = historique.website_id and website.id= %(website.id)s'
+	query = 'select link, status, date from website, historique where website.id = historique.website_id and website.id= %(website.id)s ORDER BY date DESC'
 	db.execute(query, {'website.id': id})
 	historics = db.fetchall()
 	return render_template('show.html', historics=historics)
@@ -56,7 +113,7 @@ def login():
 
 	valid_user = False
 	for user in users:
-		#if argon2.verify(password, user[1]):
+		# if argon2.verify(password, user[1]):
 		if password == user[1]:
 			valid_user = user
 
@@ -87,7 +144,6 @@ def admin():
 
 @app.route('/admin/add/website', methods=['GET', 'POST'])
 def add_website():
-
 	if request.method == 'POST':
 		db = get_db()
 		link = str(request.form.get('link'))
@@ -102,7 +158,6 @@ def add_website():
 
 @app.route('/admin/edit/website/<int:id>', methods=['GET', 'POST'])
 def edit_website(id):
-
 	db = get_db()
 	if request.method == 'POST':
 		link = str(request.form.get('link'))
@@ -120,7 +175,6 @@ def edit_website(id):
 
 @app.route('/admin/confirm_delete/website/<int:id>', methods=['GET', 'POST'])
 def delete_website(id):
-
 	db = get_db()
 	if request.method == 'POST':
 
@@ -149,7 +203,7 @@ def connect_db():
 	return g.mysql_cursor
 
 
-def commit ():
+def commit():
 	g.mysql_connection.commit()
 
 
@@ -174,4 +228,4 @@ def check_encrypted_password(password, hashed):
 
 
 if __name__ == '__main__':
-	app.run(debug=True, host=host)
+	app.run(debug=True, host=host, use_reloader=False)

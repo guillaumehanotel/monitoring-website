@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% block titre %}
+{{ super() }} - Delete Website
+{% endblock %}
+
+{% block body %}
+
+<section class="container-fluid body-container">
+
+    <div class="container text-center">
+
+        <h2 class="text">Supprimer le site : {{ website[1] }}</h2>
+        <p>Êtes-vous sûr de vouloir supprimer ce site ?</p>
+
+        <form class="form text-center" method="POST" action="#" >
+            <a href="{{ url_for('admin') }}" role="button" class="btn btn-primary btn-lg">Annuler</a>
+            <button type="submit" class="btn btn-danger btn-lg" id="btn-login">Supprimer</button>
+        </form>
+    </div>
+
+</section>
+{% endblock %}

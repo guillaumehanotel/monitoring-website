@@ -24,9 +24,15 @@ pwd_context = CryptContext(
 '''
 
 
+
+
 @app.route('/')
 def homepage():
-	return render_template('index.html')
+	query = "select w.id, link, status from historique h, website w where h.website_id = w.id group by link, status having max(date)"
+	db = get_db()
+	db.execute(query)
+	websites = db.fetchall()
+	return render_template('index.html', websites=websites)
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -48,7 +54,13 @@ def admin():
 	return render_template('admin.html', user=session['user'])
 
 
-
+@app.route('/show/<id>/')
+def show(id):
+	db = get_db()
+	query = 'select link, status, date from website, historique where website.id = historique.website_id and website.id= %(website.id)s'
+	db.execute(query, {'website.id': id})
+	historics = db.fetchall()
+	return render_template('show.html', historics=historics)
 
 
 

@@ -1,0 +1,29 @@
+{% extends 'layout.html' %}
+
+{% block titre %}
+{{ super() }} - Show
+{% endblock %}
+
+{% block body %}
+
+<section class="container-fluid body-container">
+
+    <div class="container text-center">
+        <h1 class="show-site-title"><a href="{{ historics[0][0] }}" rel="nofollow" target="_blank">{{ historics[0][0]
+            }}</a>
+        </h1>
+        <h2>Historique des status</h2>
+
+        <ul class="show-site-historic">
+            {% for historic in historics %}
+                <li>{{ historic[2] }} : {{ historic[1] }} - <span class="ion-flash text-success"></span></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</section>
+
+<div id="flash-messages-container"></div>
+
+
+{% endblock %}

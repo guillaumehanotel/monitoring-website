@@ -11,6 +11,8 @@ import time
 import atexit
 import requests
 import datetime
+from slackclient import SlackClient
+
 
 app = Flask(__name__)
 
@@ -19,11 +21,17 @@ app.config.from_object('secret_config')
 
 host = app.config['VM_HOST']
 
+SLACK_TOKEN = app.config['SLACK_TOKEN']
+sc = SlackClient(SLACK_TOKEN)
+
+
 pwd_context = CryptContext(
 	schemes=["pbkdf2_sha256"],
 	default="pbkdf2_sha256",
 	pbkdf2_sha256__default_rounds=30000
 )
+
+
 
 
 def get_status(url):
@@ -43,11 +51,38 @@ def get_status(url):
 	return str(status_code)
 
 
+def checkEqual(iterator):
+	return len(set(iterator)) <= 1
+
+
+def send_message(status_code, link):
+	sc.api_call(
+		"chat.postMessage",
+		channel="général",
+		text="Error " + str(status_code) + " on " + str(link)
+	)
+
+
 def insert_histo(status_code, date, id):
 	db = get_db()
 	query_data = {'status': status_code, 'date': date, 'website_id': id}
 	db.execute('INSERT INTO historique (status, date, website_id) VALUES (%(status)s, %(date)s, %(website_id)s)',
 			   query_data)
+
+
+def is_down(website_id):
+	db = get_db()
+	query_data = {'website_id': website_id}
+	db.execute('SELECT status FROM historique WHERE website_id = %(website_id)s order by date DESC LIMIT 3', query_data)
+	last_status = db.fetchall()
+	isDown = False
+	list_last_status = []
+	for status in last_status:
+		list_last_status.append(int(status[0]))
+	if checkEqual(list_last_status) and 200 not in list_last_status:
+		isDown = True
+
+	return isDown
 
 
 def check_status():
@@ -65,6 +100,8 @@ def check_status():
 			date = now.strftime(f)
 
 			insert_histo(status_code, date, id)
+			if is_down(id):
+				send_message(status_code, link)
 
 		commit()
 
@@ -73,7 +110,7 @@ scheduler = BackgroundScheduler()
 scheduler.start()
 scheduler.add_job(
 	func=check_status,
-	trigger=IntervalTrigger(seconds=120),
+	trigger=IntervalTrigger(seconds=10),
 	id='check_status',
 	name='Insert website status',
 	replace_existing=True)
@@ -86,7 +123,7 @@ atexit.register(lambda: scheduler.shutdown())
 
 @app.route('/')
 def homepage():
-	query = "select w.id, link, status from historique h, website w where h.website_id = w.id group by link, status having max(date)"
+	query = "select w.id, link, status from historique h, website w where h.website_id = w.id group by link having max(date)"
 	db = get_db()
 	db.execute(query)
 	websites = db.fetchall()
@@ -113,8 +150,8 @@ def login():
 
 	valid_user = False
 	for user in users:
-		# if argon2.verify(password, user[1]):
-		if password == user[1]:
+		if argon2.verify(password, user[1]):
+		# if password == user[1]:
 			valid_user = user
 
 	if valid_user:

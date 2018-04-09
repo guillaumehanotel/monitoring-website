@@ -17,7 +17,7 @@ from slackclient import SlackClient
 app = Flask(__name__)
 
 app.config.from_object('config')
-app.config.from_object('secret_config')
+#app.config.from_object('secret_config')
 
 host = app.config['VM_HOST']
 
@@ -110,7 +110,7 @@ scheduler = BackgroundScheduler()
 scheduler.start()
 scheduler.add_job(
 	func=check_status,
-	trigger=IntervalTrigger(seconds=10),
+	trigger=IntervalTrigger(seconds=120),
 	id='check_status',
 	name='Insert website status',
 	replace_existing=True)

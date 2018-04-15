@@ -1,4 +1,5 @@
 
+
 # Monitoring website - Guillaume HANOTEL
 
 ## Installation
@@ -29,10 +30,11 @@
 
 	./app.py
 	
-Creditentials :
+### Creditentials :
 Admin :
-  login : **admin@gmail.com**
+login : **admin@gmail.com**
   mdp : **password**
+  
 User :
   login : **user@gmail.com**
   mdp : **password**

@@ -23,6 +23,8 @@
 	pip3 install passlib
 	pip3 install apscheduler
 	pip3 install requests
+	pip3 install argon2_cffi
+
 	
 	cd ..
 	git clone https://github.com/slackapi/python-slackclient.git
@@ -38,8 +40,8 @@ Puis renseignez le fichier secret_config.py
 
 	#Database config
 	DATABASE_HOST = 'localhost'
-	DATABASE_USER = 'your_user'
-	DATABASE_PASSWORD = 'your_password'
+	DATABASE_USER = '<your_user>'
+	DATABASE_PASSWORD = '<your_password>'
 	DATABASE_NAME = 'monitoring_website'
 	SECRET_KEY = 'some random string w17h n|_|m83r5'
 

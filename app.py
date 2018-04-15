@@ -1,4 +1,4 @@
-#! /usr/bin/python3.4
+#! /usr/bin/env python3.4
 # -*- coding:utf-8 -*-
 
 from flask import Flask, render_template, request, g, session, redirect, url_for
@@ -17,7 +17,7 @@ from slackclient import SlackClient
 app = Flask(__name__)
 
 app.config.from_object('config')
-#app.config.from_object('secret_config')
+app.config.from_object('secret_config')
 
 host = app.config['VM_HOST']
 

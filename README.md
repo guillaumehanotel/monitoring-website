@@ -7,11 +7,16 @@
 
 	sudo apt install mysql-server mysql-client
 	sudo apt-get install python-pip python3-pip
+	git clone https://github.com/guillaumehanotel/monitoring-website	
 	
+**Environnement Virtuel :**
+
 	pip install virtualenv
 	sudo /usr/bin/easy_install virtualenv
 	virtualenv -p python3 venv
 	source ./venv/bin/activate
+	
+**Dépendances :**
 	
 	pip3 install mysql-connector
 	pip3 install flask
@@ -26,6 +31,18 @@
 	
 	cd ../monitoring-website
 	
+## Base de données
+
+Executez le fichier monitoring_website.sql pour créer la base de données.
+Puis renseignez le fichier secret_config.py
+
+	#Database config
+	DATABASE_HOST = 'localhost'
+	DATABASE_USER = 'your_user'
+	DATABASE_PASSWORD = 'your_password'
+	DATABASE_NAME = 'monitoring_website'
+	SECRET_KEY = 'some random string w17h n|_|m83r5'
+
 ## Usage
 
 	./app.py

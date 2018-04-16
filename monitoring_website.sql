@@ -23,11 +23,12 @@ DROP TABLE IF EXISTS `website`;
 CREATE TABLE `website` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `link` varchar(255) NOT NULL,
+  `warning_message` datetime,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 LOCK TABLES `website` WRITE;
-INSERT INTO `website` VALUES (1,'https://guillaumehanotel.com/'),(2,'https://thelittleminer.000webhostapp.com/'),(13,'https://github.com/guillaumehanotel/'),(14,'http://httpbin.org/status/404'),(15,'http://httpbin.org/status/500'),(16,'httpx://invalid/url');
+INSERT INTO `website` VALUES (1,'https://guillaumehanotel.com/', NULL),(2,'https://thelittleminer.000webhostapp.com/', NULL),(13,'https://github.com/guillaumehanotel/', NULL),(14,'http://httpbin.org/status/404', NULL),(15,'http://httpbin.org/status/500', NULL),(16,'httpx://invalid/url', NULL);
 UNLOCK TABLES;
 
 

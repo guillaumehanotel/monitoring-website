@@ -55,10 +55,11 @@ Puis lancez l'app :
 
 	./app.py
 	
-### Creditentials :
+### Credentials :
 Admin :
 login : **admin@gmail.com**
   mdp : **password**
+  
   
 User :
   login : **user@gmail.com**

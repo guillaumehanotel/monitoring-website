@@ -47,6 +47,12 @@ Puis renseignez le fichier secret_config.py
 
 ## Usage
 
+Renseignez votre host dans config.py :
+
+	VM_HOST = '10.0.2.15'
+	
+Puis lancez l'app :
+
 	./app.py
 	
 ### Creditentials :
